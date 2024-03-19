@@ -63,11 +63,12 @@ if __name__=='__main__':
     file_name = 'IMG_4582.HEIC'
     saved_file_prefix = 'from_heic_'
     processed_images_dir = '.processed_images'
-
-    #convert_heic_to_jpg(images_dir, file_name, processed_images_dir)
-    #get_exif_data(processed_images_dir, f"{saved_file_prefix}{file_name.replace('HEIC','jpg')}")
-
+    
     list_images = list_files(images_dir)
+    heics = [image for image in list_images if image.upper().endswith('HEIC')]
     jpgs = [image for image in list_images if image.upper().endswith('JPG')]
+    
+    for image in heics:
+        convert_heic_to_jpg(images_dir, image, processed_images_dir)
+
     copy_files_to_dir(jpgs, images_dir, processed_images_dir)
-    #print(list_images)
