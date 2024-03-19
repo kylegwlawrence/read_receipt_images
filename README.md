@@ -23,3 +23,10 @@
 - docker for containers
 - VM or local machine for execution
 - reporting tool like Looker or even a custom build in Python for HTML
+
+## First iteration
+1. Develop locally without using Google APIs
+2. Download images and g sheet to local files
+3. Find a text extracting library
+4. Set up basic model to read receipt images and extract the receipt number from top right corner
+5. Write result (success or failure to read proper receipt) plus the image's file name to the downloaded sheet
