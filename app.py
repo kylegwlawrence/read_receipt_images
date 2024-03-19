@@ -60,6 +60,7 @@ def get_exif_data(directory:str, file_name:str):
         raise RuntimeError('The file type must be JPG')
     
 def read_expenses(file:str='Budget - Expenses.csv'):
+    # ingest the expenses sheet from a local csv and do some transformation
     df = pd.read_csv(file, usecols=[0,2,3,4,5,6])
     new_col_names = {
         'Purchase Date (mm-dd-yy)':'purchase_date'
