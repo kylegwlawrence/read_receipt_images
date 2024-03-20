@@ -127,11 +127,25 @@ def parse_ocr_data(from_dir, to_dir, file_name:str, ocr_result:list) -> pd.DataF
         ocr_text = i[1]
         print(f"\n---detection results for {ocr_text}----:\n{i}")
         ocr_confidence = i[2]
+        # y coordinates
         if i[0][2][1]<i[0][0][1]:
             print('---y1 is less than y0. Assigning y1 from last element of coordinates in ocr_result---')
-            ocr_coordinates = (i[0][0][0], i[0][0][1], i[0][2][0], i[0][3][1])
+            y0 = i[0][0][1]
+            y1 = i[0][3][1]
+            #ocr_coordinates = (i[0][0][0], i[0][0][1], i[0][2][0], i[0][3][1])
         else:
-            ocr_coordinates = (i[0][0][0], i[0][0][1], i[0][2][0], i[0][2][1])
+            y0 = i[0][0][1]
+            y1 = i[0][2][1]
+            #ocr_coordinates = (i[0][0][0], i[0][0][1], i[0][2][0], i[0][2][1])
+        # x coordinates
+        if i[0][2][0]<i[0][0][0]:
+            print('---x1 is less than x0. Assigning x1 from last element of coordinates in ocr_result---')
+            x0 = i[0][0][0]
+            x1 = i[0][1][0]
+        else:
+            x0 = i[0][0][0]
+            x1 = i[0][2][0]
+        ocr_coordinates = (x0, y0, x1, y1)
         words['text'].append(ocr_text)
         words['confidence'].append(ocr_confidence)
         words['coordinates'].append(ocr_coordinates)

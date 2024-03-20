@@ -1,15 +1,9 @@
-# operate this file for one image
-# so iterate over list of files and execute main for each file
-# copy_files_files to dir should be copy one jpg file to dir
-# alternatively could have a function called transform_image which
-# would transform the HEIC image and move to processed folder
-# and then just move jpgs to processed folder
-# big TO DO: why can't detect-text be run on an original JPG image? issue with cv2
-
 from app import list_files, transform_image, detect_text, parse_ocr_data
 import pandas as pd
+import argparse
 
-def main(raw_dir, processed_dir, markedup_dir, file_name):
+def main(args, raw_dir='.images', processed_dir='.processed_images', markedup_dir='.markedup_images'):
+    file_name = args.file_name
     """
     pipeline to transform heic images to jpgs, store all jpgs in processed folder, run text detection
     model on each image, parse detection results, draw rectangles on images to visualize easyocr results,
@@ -32,14 +26,16 @@ def main(raw_dir, processed_dir, markedup_dir, file_name):
     return df
 
 if __name__ == '__main__':
-    file_name = 'IMG_4626.JPG'
-    payload = {
-        'file_name': file_name
-        , 'raw_dir':'.images'
-        , 'processed_dir':'.processed_images'
-        , 'markedup_dir':'.markedup_images'
-        }
-    df = main(**payload)
+    parser = argparse.ArgumentParser(description='detect text in an image file')
+    parser.add_argument('--file_name', required=True, help='file_name (not path) from .images directory with extension')
+    args = parser.parse_args()
+    #payload = {
+    #    'file_name': file_name
+    #    , 'raw_dir':'.images'
+    #    , 'processed_dir':'.processed_images'
+    #    , 'markedup_dir':'.markedup_images'
+    #    }
+    df = main(args)
 
     print_extra = False
     if print_extra:
