@@ -15,19 +15,25 @@ def main(raw_dir, processed_dir, markedup_dir, file_name):
     model on each image, parse detection results, draw rectangles on images to visualize easyocr results,
     save drawn-on images to a markedup_dir and provide the ocr results in a dataframe.
     """
-    # transform JPG and HEIC files ansd store in another directory
     transformed_file_name = transform_image(raw_dir, processed_dir, file_name)
 
     # detect text in image
     ocr_result = detect_text(processed_dir, transformed_file_name)
+    print(f'result from easyocr:\n{ocr_result}')
 
     # parse the results
     df = parse_ocr_data(processed_dir, markedup_dir, transformed_file_name, ocr_result)
 
+    print('---First ten rows---')
+    print(df.head(10))
+    print('---Last ten rows---')
+    print(df.tail(10))
+    print('---info---')
+    print(df.info())
     return df
 
 if __name__ == '__main__':
-    file_name = 'IMG_4557.HEIC'
+    file_name = 'IMG_4608.JPG'
     payload = {
         'file_name': file_name
         , 'raw_dir':'.images'
@@ -35,9 +41,3 @@ if __name__ == '__main__':
         , 'markedup_dir':'.markedup_images'
         }
     df = main(**payload)
-    print('---First ten rows---')
-    print(df.head(10))
-    print('---Last ten rows---')
-    print(df.tail(10))
-    print('---info---')
-    print(df.info())

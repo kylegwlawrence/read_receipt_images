@@ -5,6 +5,7 @@ from pillow_heif import register_heif_opener
 import pandas as pd
 import easyocr
 import time
+import sys
 
 def list_files(directory:str) -> list:
     # get list of files in directory
@@ -34,9 +35,13 @@ def transform_image(from_dir, to_dir, file_name) -> str:
     # copy jpg file_name from raw directory to processed directory
     if file_name.upper().endswith('JPG') and not file_name.upper().endswith('COPY.JPG'):
         file_path = f'{from_dir}/{file_name}'
-        print(f'copying {file_path} to {to_dir}')
-        shutil.copy(file_path, to_dir)
-        return file_name.lower()
+        image = Image.open(file_path)
+        #print(f'copying {file_path} to {to_dir}')
+        # save the file in to_dir
+        new_file_name = file_name.lower()
+        image.save(f"{to_dir}/{new_file_name}")
+        print(f"image saved to {new_file_name}")
+        return new_file_name
     # do some transformation if it is an HEIC file
     elif file_name.upper().endswith('HEIC'):
         # convert an HEIC image to JPG
@@ -54,7 +59,7 @@ def transform_image(from_dir, to_dir, file_name) -> str:
         print(f"image saved to {new_file_name}")
         return new_file_name
     else:
-        raise RuntimeError(f'File {from_dir}/{file_name} is not type HEIC')
+        raise RuntimeError(f'File {from_dir}/{file_name} is not type HEIC or JPG')
     
 def detect_text(dir, file_name:str) -> list:
     """
@@ -70,9 +75,14 @@ def detect_text(dir, file_name:str) -> list:
     start_time = time.time()
     file_path = f"{dir}/{file_name}"
     reader = easyocr.Reader(['en']) # this needs to run only once to load the model into memory
-    result = reader.readtext(file_path)
-    print("--- %s seconds ---" % (time.time() - start_time))
-    return result
+    try:
+        result = reader.readtext(file_path)
+        print(f'result from easyocr:\n{result}')
+        return result
+    except Exception as e:
+        print(f'readtext failed for {file_name}\n {e}')
+    finally:
+        print("--- %s seconds ---" % (time.time() - start_time))
 
 def parse_ocr_data(from_dir, to_dir, file_name:str, ocr_result:list) -> pd.DataFrame:
     """
@@ -89,6 +99,9 @@ def parse_ocr_data(from_dir, to_dir, file_name:str, ocr_result:list) -> pd.DataF
             pd.DataFrame: detected text, confidence, coordinates, and file path
 
     """
+    if ocr_result==None:
+        print('There is no data in the ocr result')
+        return None
     text = []
     confidence = []
     coordinates = []
@@ -141,10 +154,3 @@ def read_expenses(file:str='Budget - Expenses.csv'):
     for col in ['item','business_name']:
         df[col] = df[col].str.lower()
     return df
-
-if __name__=='__main__':
-    img = '.processed_images/from_heic_IMG_4546.JPG'
-    result = detect_text(img)
-    save_file_name = '.markedup_images/from_heic_IMG_4546.JPG'
-    df = parse_ocr_data(img, result, save_file_name)
-    print(df.head(10))
