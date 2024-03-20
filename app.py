@@ -1,6 +1,6 @@
 import os
 import shutil
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ExifTags
 from pillow_heif import register_heif_opener
 import pandas as pd
 import easyocr
@@ -36,11 +36,32 @@ def transform_image(from_dir, to_dir, file_name) -> str:
     if file_name.upper().endswith('JPG') and not file_name.upper().endswith('COPY.JPG'):
         file_path = f'{from_dir}/{file_name}'
         image = Image.open(file_path)
-        #print(f'copying {file_path} to {to_dir}')
+        img_exif = image.getexif()
+        exif_dict = {}
+        if img_exif is None:
+            print('Sorry, image has no exif data.')
+        else:
+            for key, val in img_exif.items():
+                if key in ExifTags.TAGS:
+                    exif_dict[ExifTags.TAGS[key]] = val
+                    #print('--Keys are in ExifTags--')
+                    #print(f'{ExifTags.TAGS[key]}:{val}')
+                else:
+                    exif_dict[key] = val
+                    #print(f'{key}:{val}')
+        print(exif_dict)
+        if 'Orientation' in exif_dict:
+            orientation = exif_dict['Orientation']
+            print(f'image orientation from exif data is {orientation}')
+            if orientation == 6:
+                image=image.rotate(270, expand=True)
+        else:
+            print('There is no Orientation key in exif data')
+        #print(f'Information for {file_path}: {image.info}')
         # save the file in to_dir
         new_file_name = file_name.lower()
         image.save(f"{to_dir}/{new_file_name}")
-        print(f"image saved to {new_file_name}")
+        print(f"Transformed image saved to {new_file_name}")
         return new_file_name
     # do some transformation if it is an HEIC file
     elif file_name.upper().endswith('HEIC'):
@@ -77,7 +98,6 @@ def detect_text(dir, file_name:str) -> list:
     reader = easyocr.Reader(['en']) # this needs to run only once to load the model into memory
     try:
         result = reader.readtext(file_path)
-        print(f'result from easyocr:\n{result}')
         return result
     except Exception as e:
         print(f'readtext failed for {file_name}\n {e}')
@@ -111,10 +131,6 @@ def parse_ocr_data(from_dir, to_dir, file_name:str, ocr_result:list) -> pd.DataF
         ocr_text = i[1]
         ocr_confidence = i[2]
         ocr_coordinates = (i[0][0][0], i[0][0][1], i[0][2][0], i[0][2][1])
-        if ocr_text == '' or ocr_text==None:
-            print('Text is null')
-        if ocr_confidence == '' or ocr_confidence==None:
-            print('confidence is null')
         words['text'].append(ocr_text)
         words['confidence'].append(ocr_confidence)
         words['coordinates'].append(ocr_coordinates)

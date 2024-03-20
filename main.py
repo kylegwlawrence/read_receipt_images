@@ -19,7 +19,6 @@ def main(raw_dir, processed_dir, markedup_dir, file_name):
 
     # detect text in image
     ocr_result = detect_text(processed_dir, transformed_file_name)
-    print(f'result from easyocr:\n{ocr_result}')
 
     # parse the results
     df = parse_ocr_data(processed_dir, markedup_dir, transformed_file_name, ocr_result)
@@ -41,3 +40,14 @@ if __name__ == '__main__':
         , 'markedup_dir':'.markedup_images'
         }
     df = main(**payload)
+
+    print_extra = False
+    if print_extra:
+        for index, row in df.iterrows():
+            text = row['text']
+            if text == '':
+                print(f'\nText for index {index}: {text} (text value is empty string)\n')
+            elif text == None:
+                print(f'\nText for index {index}: {text} (text value is None)\n')
+            else:
+                print(f'Text for index {index}: {text}')
