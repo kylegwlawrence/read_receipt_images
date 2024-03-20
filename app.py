@@ -1,6 +1,6 @@
 import os
 import shutil
-from PIL import Image, ImageDraw, ExifTags
+from PIL import Image, ImageDraw, ExifTags, ImageFont
 from pillow_heif import register_heif_opener
 import pandas as pd
 import easyocr
@@ -125,8 +125,13 @@ def parse_ocr_data(from_dir, to_dir, file_name:str, ocr_result:list) -> pd.DataF
     # iterate over the words detected
     for i in ocr_result[0:len(ocr_result)+1]:
         ocr_text = i[1]
+        print(f"\n---detection results for {ocr_text}----:\n{i}")
         ocr_confidence = i[2]
-        ocr_coordinates = (i[0][0][0], i[0][0][1], i[0][2][0], i[0][2][1])
+        if i[0][2][1]<i[0][0][1]:
+            print('---y1 is less than y0. Assigning y1 from last element of coordinates in ocr_result---')
+            ocr_coordinates = (i[0][0][0], i[0][0][1], i[0][2][0], i[0][3][1])
+        else:
+            ocr_coordinates = (i[0][0][0], i[0][0][1], i[0][2][0], i[0][2][1])
         words['text'].append(ocr_text)
         words['confidence'].append(ocr_confidence)
         words['coordinates'].append(ocr_coordinates)
@@ -139,10 +144,18 @@ def parse_ocr_data(from_dir, to_dir, file_name:str, ocr_result:list) -> pd.DataF
 
     # draw boxes on the image
     img = Image.open(f"{from_dir}/{file_name}")
+    font_file = '/System/Library/Fonts/Supplemental/Arial Narrow.ttf'
     draw = ImageDraw.Draw(img)
     for index, row in df.iterrows():
         coords = row['coordinates']
+        print(f"\n----Drawing rectangle at coords {coords} for {row['text']}----\n")
+
         draw.rectangle(coords, outline=(255, 0, 0)) # first and third elements of coordinates in tuple of ocr data
+
+        # Annotate each rectangle with the text extracted by easyocr and confidence level
+        annotation = f"{row['text']}, conf={round(row['confidence'],2)}"
+        font = ImageFont.truetype(font_file, 24)
+        draw.text((coords[0], coords[1]), annotation, fill=(255, 0, 0), font=font)
 
     # save marked up image
     img.save(f"{to_dir}/{file_name}")
