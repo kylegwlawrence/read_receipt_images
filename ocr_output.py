@@ -8,7 +8,7 @@ def parse_ocr_data(ocr_result:list, save_file_name:str):
     confidence = []
     coordinates = []
     words = {'text':text, 'confidence':confidence, 'coordinates':coordinates}
-    how_many_extractions = len(ocr)
+    how_many_extractions = len(ocr_result)
     for i in ocr_result[0:how_many_extractions+1]:
         ocr_text = i[1]
         ocr_confidence = i[2]

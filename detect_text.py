@@ -1,11 +1,11 @@
 import easyocr
 import time
 
-start_time = time.time()
-img = '.processed_images/from_heic_IMG_4519.jpg'
+def detect_text(file_name:str):
+    start_time = time.time()
 
-reader = easyocr.Reader(['en']) # this needs to run only once to load the model into memory
-result = reader.readtext(img)
-print(result)
+    reader = easyocr.Reader(['en']) # this needs to run only once to load the model into memory
+    result = reader.readtext(file_name)
+    print(result)
 
-print("--- %s seconds ---" % (time.time() - start_time))
+    print("--- %s seconds ---" % (time.time() - start_time))
