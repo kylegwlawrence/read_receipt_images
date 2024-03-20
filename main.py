@@ -32,7 +32,7 @@ def main(raw_dir, processed_dir, markedup_dir, file_name):
     return df
 
 if __name__ == '__main__':
-    file_name = 'IMG_4608.JPG'
+    file_name = 'IMG_4629.JPG'
     payload = {
         'file_name': file_name
         , 'raw_dir':'.images'

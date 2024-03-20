@@ -44,11 +44,8 @@ def transform_image(from_dir, to_dir, file_name) -> str:
             for key, val in img_exif.items():
                 if key in ExifTags.TAGS:
                     exif_dict[ExifTags.TAGS[key]] = val
-                    #print('--Keys are in ExifTags--')
-                    #print(f'{ExifTags.TAGS[key]}:{val}')
                 else:
                     exif_dict[key] = val
-                    #print(f'{key}:{val}')
         print(exif_dict)
         if 'Orientation' in exif_dict:
             orientation = exif_dict['Orientation']
@@ -57,7 +54,6 @@ def transform_image(from_dir, to_dir, file_name) -> str:
                 image=image.rotate(270, expand=True)
         else:
             print('There is no Orientation key in exif data')
-        #print(f'Information for {file_path}: {image.info}')
         # save the file in to_dir
         new_file_name = file_name.lower()
         image.save(f"{to_dir}/{new_file_name}")
