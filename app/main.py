@@ -1,4 +1,4 @@
-from app import list_files, transform_image, detect_text, parse_ocr_data
+from functions import list_files, transform_image, detect_text, parse_ocr_data
 import pandas as pd
 import argparse
 

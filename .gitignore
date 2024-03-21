@@ -1,5 +1,5 @@
 .venv/
-.images/
-.processed_images/
+app/.images/
 Budget - Expenses.csv
-.markedup_images/
+todo.txt
+Dockerfile
