@@ -1,4 +1,4 @@
-from functions import list_files, transform_image, detect_text, parse_ocr_data, main
+from functions import main
 import argparse
 
 def pipeline(args, **kwargs):
@@ -12,10 +12,6 @@ def pipeline(args, **kwargs):
             pd.DataFrame: detected text, confidence, coordinates, and file path
     """
     file_names = args.file_names
-   # if isinstance(file_names, str) and ',' not in file_names :
-    #    file_names = [file_names]
-    #elif not isinstance(file_names, list):
-    #    raise TypeError('parameter file_names must be a string for one file name or a list of strings for multiple file names')
     for file in file_names:
         df = main(file, **kwargs)
         print(f'------Do something with this dateframe such as load to postgres------\n{df.head(3)}')
