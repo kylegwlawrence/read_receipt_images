@@ -166,7 +166,7 @@ def parse_ocr_data(from_dir, to_dir, file_name:str, ocr_result:list) -> pd.DataF
 
         # Annotate each rectangle with the text extracted by easyocr and confidence level
         annotation = f"{row['text']}, conf={round(row['confidence'],2)}"
-        font = ImageFont.truetype(font_file, 24)
+        font = ImageFont.truetype(font_file, 16)
         draw.text((coords[0], coords[1]), annotation, fill=(255, 0, 0), font=font)
 
     # save marked up image
@@ -190,4 +190,30 @@ def read_expenses(file:str='Budget - Expenses.csv'):
     df['purchase_date'] = pd.to_datetime(df['purchase_date'], format='%m/%d/%Y')
     for col in ['item','business_name']:
         df[col] = df[col].str.lower()
+    return df
+
+def main(file_name, raw_dir='.images/.raw_images', processed_dir='.images/.processed_images', markedup_dir='.images/.markedup_images'):
+    """
+    pipeline to transform heic images to jpgs, store all jpgs in processed folder, run text detection
+    model on each image, parse detection results, draw rectangles on images to visualize easyocr results,
+    save drawn-on images to a markedup_dir and provide the ocr results in a dataframe.
+    """
+    # process the image
+    transformed_file_name = transform_image(raw_dir, processed_dir, file_name)
+    # detect text in image
+    ocr_result = detect_text(processed_dir, transformed_file_name)
+    # parse the detection results
+    df = parse_ocr_data(processed_dir, markedup_dir, transformed_file_name, ocr_result)
+
+    print_extra = False
+    if print_extra:
+        for index, row in df.iterrows():
+            text = row['text']
+            if text == '':
+                print(f'\nText for index {index}: {text} (text value is empty string)\n')
+            elif text == None:
+                print(f'\nText for index {index}: {text} (text value is None)\n')
+            else:
+                print(f'Text for index {index}: {text}')
+
     return df
